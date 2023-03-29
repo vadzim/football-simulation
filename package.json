@@ -5,8 +5,22 @@
   "main": "index.js",
   "scripts": {
     "test": "docker-compose up --build game-simulation-service-test && docker-compose up --build backend-test",
-    "dev": "docker-compose up --build backend-dev"
+    "dev-simulation": "PORT=3001 yarn --cwd game-simulation-service dev",
+    "dev-backend": "SIMULATION_PORT=3001 PORT=3002 yarn --cwd backend dev",
+    "dev-frontend": "REACT_APP_API_BASE_URL=http://localhost:3002 yarn --cwd frontend start",
+    "dev": "concurrently --kill-others npm:dev-*",
+    "setup-simulation": "yarn --cwd game-simulation-service install",
+    "setup-backend": "yarn --cwd backend install",
+    "setup-frontend": "yarn --cwd frontend install",
+    "setup": "concurrently -m 1 npm:setup-*",
+    "format-simulation": "yarn --cwd game-simulation-service format",
+    "format-backend": "yarn --cwd backend format",
+    "format-frontend": "yarn --cwd frontend format",
+    "format": "concurrently npm:format-*"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
 }
