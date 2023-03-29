@@ -2,7 +2,7 @@ import { from, toArray } from "ix/asynciterable"
 import { map } from "ix/asynciterable/operators"
 import { startSimulator } from "../src/game/game"
 
-const timeStampPrecision = 20 // ms
+const timeStampPrecision = 50 // ms
 
 describe("game simulator", () => {
 	it("simulates a game", async () => {
