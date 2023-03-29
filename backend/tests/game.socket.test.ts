@@ -29,9 +29,7 @@ describe("ws://server/games/:id", () => {
 
 	it("should send a start/stop message after starting/stopping a game", async () => {
 		{
-			const socketInput = new Promise((resolve, reject) =>
-				ws.once("message", resolve).once("error", reject),
-			)
+			const socketInput = new Promise((resolve, reject) => ws.once("message", resolve).once("error", reject))
 
 			const res = await request(server).post("/games/1/start")
 			expect(res.statusCode).toEqual(200)
@@ -49,9 +47,7 @@ describe("ws://server/games/:id", () => {
 		}
 
 		{
-			const socketInput = new Promise((resolve, reject) =>
-				ws.once("message", resolve).once("error", reject),
-			)
+			const socketInput = new Promise((resolve, reject) => ws.once("message", resolve).once("error", reject))
 
 			const res = await request(server).post("/games/1/stop")
 			expect(res.statusCode).toEqual(200)
