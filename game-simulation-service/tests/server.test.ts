@@ -1,4 +1,4 @@
-import net from "net"
+import { connect } from "net"
 import request from "supertest"
 import { from, toArray } from "ix/asynciterable"
 import { map } from "ix/asynciterable/operators"
@@ -10,7 +10,7 @@ describe("net server", () => {
 	it("starts simulation", async () => {
 		const { port } = server.listen().address()
 
-		const client = net.connect({ port, allowHalfOpen: true }, () => {
+		const client = connect({ port, allowHalfOpen: true }, () => {
 			client.write(JSON.stringify({ id: 42, team1: "rikki", team2: "tikki" }))
 			client.end()
 		})
