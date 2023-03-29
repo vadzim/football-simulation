@@ -11,9 +11,11 @@ export async function* startSimulator(
 
 	yield { ...data, score1, score2, status: "started" }
 
+	const probability = Math.random()
+
 	for (let i = 0; i < 9; i++) {
 		await sleep(start + options.scoreDelay * (i + 1) - Date.now())
-		if (Math.random() < 0.5) {
+		if (Math.random() < probability) {
 			score1++
 		} else {
 			score2++
