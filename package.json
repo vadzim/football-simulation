@@ -1,0 +1,11 @@
+{
+  "name": "football",
+  "version": "1.0.0",
+  "description": "football simulation",
+  "main": "index.js",
+  "scripts": {
+    "test": "docker-compose up --build game-simulation-service-test && docker-compose up --build backend-test"
+  },
+  "author": "",
+  "license": "ISC"
+}

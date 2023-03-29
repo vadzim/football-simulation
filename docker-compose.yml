@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: test.Dockerfile
+    depends_on:
+      - game-simulation-service-dev
+    environment:
+      - SIMULATION_HOST=game-simulation-service-dev
+      - SIMULATION_PORT=3000
+    stdin_open: true
+    networks:
+      - football-network
+
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: dev.Dockerfile
+    depends_on:
+      - game-simulation-service-dev
+    environment:
+      - SIMULATION_HOST=game-simulation-service-dev
+      - SIMULATION_PORT=3000
+    stdin_open: true
+    networks:
+      - football-network
+
+  game-simulation-service-test:
+    build:
+      context: ./game-simulation-service
+      dockerfile: test.Dockerfile
+    stdin_open: true
+
+  game-simulation-service-dev:
+    build:
+      context: ./game-simulation-service
+      dockerfile: dev.Dockerfile
+    stdin_open: true
+    networks:
+      - football-network
+    # deploy:
+      # replicas: 2
+
+networks:
+  football-network:
