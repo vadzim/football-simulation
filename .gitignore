@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.build/
+.env/
+
+.env.local
+.DS_Store
+*.log
+*.pid
+*.lock
+!yarn.lock
+*.tsbuildinfo
