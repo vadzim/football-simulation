@@ -3,6 +3,7 @@ import { Readable } from "stream"
 import { from } from "ix/asynciterable"
 import { map } from "ix/asynciterable/operators"
 import getStream from "get-stream"
+import { config } from "./config"
 import { startSimulator } from "./game/game"
 
 export const server = net.createServer({ allowHalfOpen: true }, async socket => {
@@ -19,10 +20,8 @@ export const server = net.createServer({ allowHalfOpen: true }, async socket => 
 const stringifyAsyncIterable = (iterable: AsyncIterable<unknown>) =>
 	from(iterable).pipe(map(data => JSON.stringify(data) + "\n"))
 
-const port = process.env.PORT || 3000
-
-if (process.env.NODE_ENV !== "test") {
-	server.listen(port, () => {
-		console.log(`Server listening on port ${port}`)
+if (!config.testEnvironment) {
+	server.listen(config.port, () => {
+		console.log(`Server listening on port ${config.port}`)
 	})
 }
