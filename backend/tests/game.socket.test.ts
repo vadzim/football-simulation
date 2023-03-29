@@ -1,9 +1,8 @@
 import request from "supertest"
 import WebSocket from "ws"
-import { once } from "events"
 import { app } from "../src/server"
 
-describe("WebSocket server", () => {
+describe("ws://server/games/:id", () => {
 	let server, ws, port
 	beforeAll(() => {
 		server = app.listen()
@@ -28,20 +27,46 @@ describe("WebSocket server", () => {
 		done()
 	})
 
-	it("should return a message after starting a game", async () => {
-		const res = await request(app).post("/games/1/start")
-		expect(res.statusCode).toEqual(200)
+	it("should send a start/stop message after starting/stopping a game", async () => {
+		{
+			const socketInput = new Promise((resolve, reject) =>
+				ws.once("message", resolve).once("error", reject),
+			)
 
-		const receivedMessage = once(ws, "message")
+			const res = await request(server).post("/games/1/start")
+			expect(res.statusCode).toEqual(200)
 
-		expect(receivedMessage).toEqual({
-			id: "1",
-			team1: "Germany",
-			team2: "Poland",
-			score1: 0,
-			score2: 0,
-			started: true,
-		})
+			const json = JSON.parse(String(await socketInput))
+
+			expect(json).toEqual({
+				id: "1",
+				team1: "Germany",
+				team2: "Poland",
+				score1: 0,
+				score2: 0,
+				started: true,
+			})
+		}
+
+		{
+			const socketInput = new Promise((resolve, reject) =>
+				ws.once("message", resolve).once("error", reject),
+			)
+
+			const res = await request(server).post("/games/1/stop")
+			expect(res.statusCode).toEqual(200)
+
+			const json = JSON.parse(String(await socketInput))
+
+			expect(json).toEqual({
+				id: "1",
+				team1: "Germany",
+				team2: "Poland",
+				score1: 0,
+				score2: 0,
+				started: false,
+			})
+		}
 
 		if (ws.readyState === WebSocket.OPEN) {
 			ws.close()
