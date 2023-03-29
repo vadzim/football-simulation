@@ -12,16 +12,16 @@ type Game = {
 		score1: number
 		score2: number
 	}
-	clients: WebSocket[]
+	clients: Set<WebSocket>
 	server?: Socket
 }
 
 const games: Game[] = [
-	{ data: { id: "1", team1: "Germany", team2: "Poland", score1: 0, score2: 0 }, clients: [] },
-	{ data: { id: "2", team1: "Brazil", team2: "Mexico", score1: 0, score2: 0 }, clients: [] },
+	{ data: { id: "1", team1: "Germany", team2: "Poland", score1: 0, score2: 0 }, clients: new Set() },
+	{ data: { id: "2", team1: "Brazil", team2: "Mexico", score1: 0, score2: 0 }, clients: new Set() },
 	{
 		data: { id: "3", team1: "Argentina", team2: "Uruguay", score1: 0, score2: 0 },
-		clients: [],
+		clients: new Set(),
 	},
 ]
 
@@ -31,7 +31,7 @@ export const debugInfo = async () => {
 	return games.map(game => ({
 		...game,
 		server: Boolean(game.server),
-		clients: game.clients.length,
+		clients: game.clients.size,
 	}))
 }
 
@@ -103,10 +103,10 @@ export const listen = async (id: string, openWs: () => Promise<WebSocket>) => {
 
 	// we are good, opening the websocket
 	const ws = await openWs()
-	game.clients.push(ws)
+	game.clients.add(ws)
 	ws.send(JSON.stringify(formatGame(game)))
 	await once(ws, "close")
-	game.clients.splice(game.clients.indexOf(ws), 1)
+	game.clients.delete(ws)
 }
 
 //
@@ -117,7 +117,7 @@ const getGame = async (id: string) => {
 	return game
 }
 
-const sendMessageToClients = (clients: WebSocket[], json: unknown) => {
+const sendMessageToClients = (clients: Set<WebSocket>, json: unknown) => {
 	const message = JSON.stringify(json)
 	for (const client of clients) client.send(message)
 }
