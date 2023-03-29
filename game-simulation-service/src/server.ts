@@ -16,7 +16,7 @@ export const server = net.createServer({ allowHalfOpen: true }, async socket => 
 		.on("finish", () => console.log("Game finished:", game))
 })
 
-const stringifyAsyncIterable = (iterable: AsyncIterable) =>
+const stringifyAsyncIterable = (iterable: AsyncIterable<unknown>) =>
 	from(iterable).pipe(map(data => JSON.stringify(data) + "\n"))
 
 const port = process.env.PORT || 3000
