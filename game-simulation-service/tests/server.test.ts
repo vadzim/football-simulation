@@ -8,10 +8,18 @@ const timeStampPrecision = 20 // ms
 
 describe("net server", () => {
 	it("starts simulation", async () => {
-		const { port } = server.listen().address()
+		const { port } = server.listen().address() as { port: number }
 
 		const client = connect({ port, allowHalfOpen: true }, () => {
-			client.write(JSON.stringify({ id: 42, team1: "rikki", team2: "tikki" }))
+			client.write(
+				JSON.stringify({
+					options: { scoreDelay: 100 },
+					games: [
+						{ id: "42", team1: "rikki", team2: "tikki" },
+						{ id: "44", team1: "simon", team2: "pumba" },
+					],
+				}),
+			)
 			client.end()
 		})
 
@@ -30,13 +38,7 @@ describe("net server", () => {
 
 		const result = await onDataPromise
 
-		expect(result).toEqual({
-			id: 42,
-			team1: "rikki",
-			team2: "tikki",
-			score1: 0,
-			score2: 0,
-			status: "started",
-		})
+		// TODO: test that id is one of sent ids and scoredTeam is one of playing in that game
+		expect(result).toEqual({ id: expect.any(String), scoredTeam: expect.any(String) })
 	})
 })
