@@ -9,12 +9,12 @@ import { startSimulator } from "./game/game"
 export const server = net.createServer({ allowHalfOpen: true }, async socket => {
 	console.log("Client connected:", socket.remoteAddress, socket.remotePort)
 
-	const game = JSON.parse(String(await getStream.buffer(socket)).trim())
-	console.log("Starting a game:", game)
+	const { games, options } = JSON.parse(String(await getStream.buffer(socket)).trim())
+	console.log("Starting simulation of games:", games)
 
-	Readable.from(stringifyAsyncIterable(startSimulator(game)))
+	Readable.from(stringifyAsyncIterable(startSimulator(games, options)))
 		.pipe(socket)
-		.on("finish", () => console.log("Game finished:", game))
+		.on("finish", () => console.log("Game finished:", games))
 })
 
 const stringifyAsyncIterable = (iterable: AsyncIterable<unknown>) =>

@@ -8,142 +8,61 @@ describe("game simulator", () => {
 	it("simulates a game", async () => {
 		const timeStart = Date.now()
 
-		const game = startSimulator({ id: 42, team1: "rikki", team2: "tikki" }, { scoreDelay: 100 })
+		const game = startSimulator(
+			[
+				{ id: "42", team1: "rikki", team2: "tikki" },
+				{ id: "44", team1: "simon", team2: "pumba" },
+			],
+			{ scoreDelay: 100 },
+		)
 
 		const scores = from(game).pipe(
 			map(data => ({
 				data,
 				timestamp: Math.round((Date.now() - timeStart) / timeStampPrecision) * timeStampPrecision,
-				totalScore: data.score1 + data.score2,
 			})),
 		)
 		const result = await toArray(scores)
 
+		const dataTemplate = { id: expect.any(String), scoredTeam: expect.any(String) }
+
+		// TODO: test that id is one of sent ids and scoredTeam is one of playing in that game
 		expect(result).toEqual([
 			{
-				timestamp: 0,
-				totalScore: 0,
-				data: { id: 42, team1: "rikki", team2: "tikki", score1: 0, score2: 0, status: "started" },
-			},
-			{
 				timestamp: 100,
-				totalScore: 1,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 200,
-				totalScore: 2,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 300,
-				totalScore: 3,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 400,
-				totalScore: 4,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 500,
-				totalScore: 5,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 600,
-				totalScore: 6,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 700,
-				totalScore: 7,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 800,
-				totalScore: 8,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
+				data: dataTemplate,
 			},
 			{
 				timestamp: 900,
-				totalScore: 9,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "pending",
-				},
-			},
-			{
-				timestamp: 900,
-				totalScore: 9,
-				data: {
-					id: 42,
-					team1: "rikki",
-					team2: "tikki",
-					score1: expect.any(Number),
-					score2: expect.any(Number),
-					status: "finished",
-				},
+				data: dataTemplate,
 			},
 		])
 	})

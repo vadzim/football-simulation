@@ -4,50 +4,33 @@ import styled from "styled-components"
 import { config } from "./config"
 
 export const Games = () => {
-  const [games, setGames] = useState<{ id: string; team1: string; team2: string }[]>([])
-
-  useEffect(() => {
-    ;(async () => {
-     const req = await fetch(`${config.api}/games`) 
-     setGames(await req.json())
-    })()
-  }, [])
-
-	const [scores, setScores] = useState<{
-		[id: string]: { score1: number; score2: number; started: boolean }
-	}>({})
+	const [state, setState] = useState<{
+		started: boolean
+		games: { id: string; team1: string; team2: string; score1: number; score2: number }[]
+	}>({ started: false, games: [] })
 
 	const start = () => {
-		for (const { id } of games) {
-			fetch(`${config.api}/games/${id}/start`, { method: "POST" })
-		}
+		fetch(`${config.api}/games/start`, { method: "POST" })
 	}
 
 	const stop = () => {
-		for (const { id } of games) {
-			fetch(`${config.api}/games/${id}/stop`, { method: "POST" })
-		}
+		fetch(`${config.api}/games/stop`, { method: "POST" })
 	}
 
 	useEffect(() => {
-		const sockets = games.map(({ id }) => {
-			const ws = new WebSocket(`${config.api.replace(/^http/, "ws")}/games/${id}`)
-			ws.onmessage = ({ data }) => {
-				if (data) {
-					const { score1, score2, started }: { score1: number; score2: number; started: boolean } =
-						JSON.parse(data)
-					setScores(s => ({ ...s, [id]: { score1, score2, started } }))
-				}
+		const ws = new WebSocket(`${config.api.replace(/^http/, "ws")}/games/listen`)
+		ws.onmessage = ({ data }) => {
+			if (data) {
+				const newState = JSON.parse(data)
+				setState(newState)
 			}
-			return ws
-		})
-		return () => {
-			for (const ws of sockets) ws.close()
 		}
-	}, [games])
+		return () => {
+			ws.close()
+		}
+	}, [])
 
-	const totalGoals = Object.values(scores).reduce((sum, { score1, score2 }) => sum + score1 + score2, 0)
-	const smthStarted = Object.values(scores).some(({ started }) => started)
+	const totalGoals = state.games.reduce((sum, { score1, score2 }) => sum + score1 + score2, 0)
 
 	return (
 		<Wrapper>
@@ -56,34 +39,49 @@ export const Games = () => {
 					variant="contained"
 					color="primary"
 					onClick={() => {
-						if (smthStarted) {
+						if (state.started) {
 							stop()
 						} else {
 							start()
 						}
 					}}
 				>
-					{smthStarted ? <>Finish</> : totalGoals === 0 ? <>Start</> : <>Restart</>}
+					{state.started ? <>Finish</> : totalGoals === 0 ? <>Start</> : <>Restart</>}
 				</Button>
-				{games.map(({ id, team1, team2 }) => {
-					const { score1, score2 } = scores[id] || { score1: 0, score2: 0 }
-					return (
-						<GameResultWrapper key={id}>
-							<Typography variant="h6" style={{ flex: 1 }}>
-								{team1} vs {team2}:
-							</Typography>
-							<Typography variant="h6">
-								{score1} - {score2}
-							</Typography>
-						</GameResultWrapper>
-					)
-				})}
-				<TotalGoalsWrapper>
-					<Typography style={{ flex: 1 }}>Total Goals:</Typography>
-					<Typography style={{ marginLeft: "0.5em" }}>{totalGoals}</Typography>
-				</TotalGoalsWrapper>
+				{state.games.map(({ id, team1, team2, score1, score2 }) => (
+					<ResultWrapper key={id}>
+						<Typography variant="h6">
+							{team1} vs {team2}:
+						</Typography>
+						<Typography variant="h6">
+							{score1} - {score2}
+						</Typography>
+					</ResultWrapper>
+				))}
+				<ResultWrapper>
+					<TotalGoalsWrapper>{state.started && <TimerForDebugPurpose />}</TotalGoalsWrapper>
+					<TotalGoalsWrapper>
+						<Typography>Total Goals:</Typography>
+						<Typography>{totalGoals}</Typography>
+					</TotalGoalsWrapper>
+				</ResultWrapper>
 			</Box>
 		</Wrapper>
+	)
+}
+
+const TimerForDebugPurpose = () => {
+	const [currentTime, setCurrentTime] = useState(0)
+	useEffect(() => {
+		const startTime = Date.now()
+		const h = setInterval(() => setCurrentTime(Math.round((Date.now() - startTime) / 1000)), 1000)
+		return () => clearInterval(h)
+	}, [])
+	return (
+		<span style={{ color: "#bbb" }}>{`${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(
+			2,
+			"0",
+		)}`}</span>
 	)
 }
 
@@ -104,12 +102,12 @@ const Box = styled.div`
 
 const TotalGoalsWrapper = styled.div`
 	display: flex;
-	align-self: flex-end;
 	align-items: center;
 	margin-top: 20px;
+	gap: 0.3em;
 `
 
-const GameResultWrapper = styled.div`
+const ResultWrapper = styled.div`
 	display: flex;
 	gap: 3em;
 	align-self: stretch;
