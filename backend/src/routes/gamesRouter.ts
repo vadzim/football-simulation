@@ -9,22 +9,16 @@ gamesRouter.get("/games", async (ctx: Context) => {
 	ctx.body = await Games.findAll()
 })
 
-gamesRouter.get("/games/debug", async (ctx: Context) => {
-	ctx.body = JSON.stringify(await Games.debugInfo(), undefined, 2)
-})
-
-gamesRouter.get("/games/:id", async (ctx: Context) => {
+gamesRouter.get("/games/listen", async (ctx: Context) => {
 	const openWs = handleWebsocket(ctx)
-	if (openWs) {
-		return await Games.listen(ctx.params.id, openWs)
-	}
-	ctx.body = await Games.findGame(ctx.params.id)
+	if (!openWs) ctx.throw(404)
+	await Games.listen(openWs)
 })
 
-gamesRouter.post("/games/:id/start", async (ctx: Context) => {
-	ctx.body = await Games.start(ctx.params.id)
+gamesRouter.post("/games/start", async (ctx: Context) => {
+	ctx.body = await Games.start()
 })
 
-gamesRouter.post("/games/:id/stop", async (ctx: Context) => {
-	ctx.body = await Games.stop(ctx.params.id)
+gamesRouter.post("/games/stop", async (ctx: Context) => {
+	ctx.body = await Games.stop()
 })
