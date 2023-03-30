@@ -4,6 +4,7 @@
   "description": "football simulation",
   "main": "index.js",
   "scripts": {
+    "demo": "docker-compose up --build frontend-dev",
     "test": "docker-compose up --build game-simulation-service-test && docker-compose up --build backend-test",
     "dev-simulation": "PORT=3001 yarn --cwd game-simulation-service dev",
     "dev-backend": "SIMULATION_PORT=3001 PORT=3002 yarn --cwd backend dev",

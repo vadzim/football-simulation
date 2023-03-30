@@ -1,6 +1,20 @@
 version: "3"
 
 services:
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    depends_on:
+      - backend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_BASE_URL=http://localhost:3002
+    stdin_open: true
+    networks:
+      - football-network
+
   backend-test:
     build:
       context: ./backend
@@ -44,8 +58,6 @@ services:
     stdin_open: true
     networks:
       - football-network
-    # deploy:
-      # replicas: 2
 
 networks:
   football-network:
